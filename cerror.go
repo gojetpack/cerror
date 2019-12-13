@@ -10,7 +10,6 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -44,23 +43,17 @@ type Error struct {
 //
 // The As method should set the target to its value and return true if err
 // matches the type to which target points.
-func (err Error) As(target interface{}) bool {
+func (err Error) As(target *Error) bool {
 	if target == nil {
 		panic("errors: target cannot be nil")
 	}
-	val := reflect.ValueOf(target)
-	typ := val.Type()
-	if typ.Kind() != reflect.Ptr || val.IsNil() {
-		panic("errors: target must be a non-nil pointer")
-	}
-	targetType := typ.Elem()
 	current := &err
 	for {
 		if current == nil {
 			return false
 		}
-		if reflect.TypeOf(current).AssignableTo(targetType) {
-			val.Elem().Set(reflect.ValueOf(current))
+		if current.Code == target.Code {
+			*target = *current
 			return true
 		}
 		current = current.ComesFrom

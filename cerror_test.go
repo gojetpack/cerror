@@ -18,7 +18,7 @@ var (
 
 	errLevel0 = Error{
 		Type:        codes.InvalidArgument,
-		Code:        "EIA",
+		Code:        "0",
 		Description: "The argument 'password' is invalid",
 		Cause:       "'{1}' lower than {2}",
 		ComesFrom:   nil,
@@ -184,6 +184,41 @@ func TestError_From(t *testing.T) {
 			}
 			if tt.err1.ComesFrom != nil {
 				t.Errorf("Error.From() = %s, original comesFrom is not nil, %v", tt.name, tt.wantComesFrom)
+			}
+		})
+	}
+}
+
+func TestError_As(t *testing.T) {
+	tests := []struct {
+		name    string
+		err     Error
+		target  Error
+		want    bool
+		wantErr *Error
+	}{
+		{
+			name:    "true",
+			err:     errLevel2,
+			target:  Error{Code: errLevel0.Code},
+			want:    true,
+			wantErr: &errLevel0,
+		},
+		{
+			name:    "false",
+			err:     errLevel2,
+			target:  Error{Code: "WTF!"},
+			want:    false,
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.err.As(&tt.target); got != tt.want {
+				t.Errorf("Error.IsError() = %v, want %v", got, tt.want)
+			}
+			if tt.want && tt.target.Code != tt.wantErr.Code {
+				t.Errorf("Error.IsError() = %v, want %v", tt.target.Code, tt.wantErr.Code)
 			}
 		})
 	}
