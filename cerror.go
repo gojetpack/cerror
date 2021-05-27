@@ -85,6 +85,7 @@ func (err Error) FormatError(p xerrors.Printer) error {
 	if len(err.Code) > 0 {
 		code = err.Code
 	}
+
 	desc := ""
 	if len(err.Description) > 0 {
 		desc = err.Description
