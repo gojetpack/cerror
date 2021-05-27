@@ -81,7 +81,15 @@ func (err Error) Is(target Error) bool {
 // FormatError prints the receiver's first error and returns the next error in
 // the error chain, if any.
 func (err Error) FormatError(p xerrors.Printer) error {
-	p.Printf("%d %s", err.Code, err.Description)
+	code := ""
+	if len(err.Code) > 0 {
+		code = err.Code
+	}
+	desc := ""
+	if len(err.Description) > 0 {
+		desc = err.Description
+	}
+	p.Printf("%s: %s", code, desc)
 	err.Frame.Format(p)
 	return err.ComesFrom
 }
